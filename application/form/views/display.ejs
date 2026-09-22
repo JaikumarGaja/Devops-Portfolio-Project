@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Directory</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background: #f4f4f9; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #007bff; color: white; text-transform: uppercase; letter-spacing: 0.1em; }
+        tr:hover { background-color: #f1f1f1; }
+        .container { max-width: 800px; margin: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>User Information</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% projects.forEach(item => { %>
+                    <tr>
+                        <td><%= item.name %></td>
+                        <td><%= item.age %></td>
+                        <td><%= item.gender %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        <br>
+        <a href="/">Back to Home</a>
+    </div>
+</body>
+</html>

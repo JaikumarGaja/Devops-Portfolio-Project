@@ -1,0 +1,23 @@
+.env
+aws-assignment-key.pem
+notes.txt
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Ignore any .tfvars files that contain sensitive variables
+*.tfvars
+*.tfvars.json
+
+*.tfstate.backup
+
+*.tfvars
+

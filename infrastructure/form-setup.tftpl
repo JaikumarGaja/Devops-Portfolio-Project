@@ -1,0 +1,11 @@
+#!/bin/bash
+# 1. Install Docker and Docker Compose
+apt-get update -y
+apt-get install -y docker.io docker-compose git
+
+# 2. Start Docker service
+systemctl start docker
+systemctl enable docker
+
+# 3. Add ubuntu user to docker group so Jenkins can run docker commands via SSH without sudo
+usermod -aG docker ubuntu
