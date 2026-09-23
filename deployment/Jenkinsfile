@@ -24,7 +24,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'MONGO_URI=${MONGO_URI}' > /home/ubuntu/app/form-api/.env"
 
                         # 4. Copy the docker-compose.yml file from the Jenkins workspace to the App Server
-                        scp -o StrictHostKeyChecking=no deployment/docker-compose.yml ubuntu@${APP_IP}:/home/ubuntu/app/docker-compose.yml
+                        scp -o StrictHostKeyChecking=no deployment/docker-compose.yml ubuntu@${APP_IP}:/home/ubuntu/app/docker-compose.yaml
 
                         # 5. SSH in, pull the latest Docker images, and start the containers
                         ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d"
