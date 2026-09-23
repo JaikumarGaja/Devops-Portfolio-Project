@@ -30,9 +30,8 @@ pipeline {
                         scp -o StrictHostKeyChecking=no deployment/docker-compose.yaml ubuntu@${APP_IP}:/home/ubuntu/app/docker-compose.yaml
 
                         # 3. Force Docker to use the specific .yaml file
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose -f docker-compose.yaml pull && docker-compose -f docker-compose.yaml up -d"
 
-                        
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose -f docker-compose.yaml pull && docker-compose -f docker-compose.yaml down && docker-compose -f docker-compose.yaml up -d"
                     '''
                 }
             }
