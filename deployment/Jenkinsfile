@@ -23,11 +23,16 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'BACKEND_URL=http://${APP_IP}:5000' > /home/ubuntu/app/form/.env"
                         ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'MONGO_URI=${MONGO_URI}' > /home/ubuntu/app/form-api/.env"
 
-                        # 4. Copy the docker-compose.yml file from the Jenkins workspace to the App Server
+                        # 1. Delete any old compose files to prevent conflicts
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "rm -f /home/ubuntu/app/docker-compose.yml /home/ubuntu/app/docker-compose.yaml"
+
+                        # 2. Copy the new .yaml file
                         scp -o StrictHostKeyChecking=no deployment/docker-compose.yaml ubuntu@${APP_IP}:/home/ubuntu/app/docker-compose.yaml
 
-                        # 5. SSH in, pull the latest Docker images, and start the containers
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d"
+                        # 3. Force Docker to use the specific .yaml file
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose -f docker-compose.yaml pull && docker-compose -f docker-compose.yaml up -d"
+
+                        
                     '''
                 }
             }
