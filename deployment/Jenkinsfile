@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    environment {
+        // Your current App Server IP (Note: this will change if the EC2 instance stops/starts)
+        APP_IP = '16.4.43.79'
+        
+        // Securely fetch the MongoDB connection string from Jenkins' credential vault
+        MONGO_URI = credentials('mongo-uri-secret')
+    }
+
+    stages {
+        stage('Deploy to App Server') {
+            steps {
+                // This block uses the SSH Agent plugin and the credential ID we just created
+                sshagent(['app-server-key']) {
+                    sh '''
+                        # 1. Bypass the interactive prompt for adding the host to known_hosts
+                        # 2. Create the necessary directories on the App Server
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "mkdir -p /home/ubuntu/app/form /home/ubuntu/app/form-api"
+
+                        # 3. Securely inject the .env files directly onto the App Server
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'BACKEND_URL=http://${APP_IP}:5000' > /home/ubuntu/app/form/.env"
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'MONGO_URI=${MONGO_URI}' > /home/ubuntu/app/form-api/.env"
+
+                        # 4. Copy the docker-compose.yml file from the Jenkins workspace to the App Server
+                        scp -o StrictHostKeyChecking=no deployment/docker-compose.yml ubuntu@${APP_IP}:/home/ubuntu/app/docker-compose.yml
+
+                        # 5. SSH in, pull the latest Docker images, and start the containers
+                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose pull && docker-compose up -d"
+                    '''
+                }
+            }
+        }
+    }
+}
