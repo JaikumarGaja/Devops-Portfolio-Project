@@ -1,7 +1,7 @@
 name: Build and Push Frontend
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
     paths:
       - 'form/**'
 jobs:
