@@ -3,7 +3,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'form/**'
+      - 'application/form/**'
 jobs:
   build:
     runs-on: ubuntu-latest
