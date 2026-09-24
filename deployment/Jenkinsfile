@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Your current App Server IP (Note: this will change if the EC2 instance stops/starts)
-        APP_IP = '16.4.43.79'
+        APP_IP = '13.235.49.85'
         
         // Securely fetch the MongoDB connection string from Jenkins' credential vault
         MONGO_URI = credentials('mongo-uri-secret')

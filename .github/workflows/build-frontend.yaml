@@ -24,4 +24,4 @@ jobs:
       - name: Trigger Jenkins Pipeline
         run: |
           curl -i -f -L -X POST -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
-          "http://43.204.212.69:8080/job/devops-portfolio-pipeline/build?token=pipeline-ready"
+          "http://13.201.226.86:8080/job/devops-portfolio-pipeline/build?token=pipeline-ready"
