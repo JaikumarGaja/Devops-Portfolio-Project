@@ -137,30 +137,27 @@ module "vpc" {
   name = "eks-vpc"
   cidr = "10.0.0.0/16"
 
-  # Deploying across two Availability Zones in Mumbai
-  azs             = ["ap-south-1a", "ap-south-1b"]
-  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+  azs            = ["ap-south-1a", "ap-south-1b"]
+  public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
 
-  # Auto-assigns public IPs so nodes can reach the Control Plane
-  map_public_ip_on_launch = true
+  # CRITICAL: Without these two, worker nodes cannot resolve the EKS cluster endpoint
+  enable_dns_hostnames = true
+  enable_dns_support   = true
 }
 
-# 2. The EKS Cluster
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  name    = "devops-portfolio-cluster"
-  kubernetes_version = "1.30"
+  name    = "devops-portfolio-cluster-v3"
+  kubernetes_version = "1.30" # Stable LTS version
 
   endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
 
-  # Connect to the new custom VPC
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.public_subnets
 
-  # THE FIX: Explicitly install the networking and DNS plugins
   addons = {
     coredns    = {}
     kube-proxy = {}
@@ -173,6 +170,8 @@ module "eks" {
       max_size       = 2
       desired_size   = 1
       instance_types = ["t3.medium"] 
+      
+      associate_public_ip_address = true
     }
   }
 }
