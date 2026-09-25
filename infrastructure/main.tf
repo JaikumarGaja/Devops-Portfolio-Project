@@ -129,19 +129,23 @@ output "jenkins_public_ip" {
   value       = aws_instance.jenkins_server.public_ip
 }
 
-# Fetch your default AWS network automatically
-data "aws_vpc" "default" {
-  default = true
+# 1. Build a custom, EKS-optimized VPC
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+
+  name = "eks-vpc"
+  cidr = "10.0.0.0/16"
+
+  # Deploying across two Availability Zones in Mumbai
+  azs             = ["ap-south-1a", "ap-south-1b"]
+  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+
+  # Auto-assigns public IPs so nodes can reach the Control Plane
+  map_public_ip_on_launch = true
 }
 
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-}
-
-# Provision the EKS Cluster
+# 2. The EKS Cluster
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
@@ -149,13 +153,19 @@ module "eks" {
   name    = "devops-portfolio-cluster"
   kubernetes_version = "1.36"
 
-  endpoint_public_access = true
-  
-  # Grants your local AWS CLI and Jenkins permissions to run kubectl commands
+  endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
 
-  vpc_id     = data.aws_vpc.default.id
-  subnet_ids = data.aws_subnets.default.ids
+  # Connect to the new custom VPC
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnets
+
+  # THE FIX: Explicitly install the networking and DNS plugins
+  addons = {
+    coredns    = {}
+    kube-proxy = {}
+    vpc-cni    = {}
+  }
 
   eks_managed_node_groups = {
     app_nodes = {
@@ -163,9 +173,6 @@ module "eks" {
       max_size       = 2
       desired_size   = 1
       instance_types = ["t3.medium"] 
-      
-      # THE FIX: Forces nodes to get a public IP so they can use the Internet Gateway
-      associate_public_ip_address = true
     }
   }
 }
