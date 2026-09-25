@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.0.0"
+    }
+  }
+}
+
 variable "mongo_uri" {
   description = "MongoDB Connection String"
   type        = string
@@ -80,20 +89,20 @@ data "aws_ami" "ubuntu" {
 }
 
 # 3. Create the empty server
-resource "aws_instance" "app_server" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.main_sg.id]
-  key_name = "aws-assignment-key"
+# resource "aws_instance" "app_server" {
+#   ami                    = data.aws_ami.ubuntu.id
+#   instance_type          = "t2.micro"
+#   vpc_security_group_ids = [aws_security_group.main_sg.id]
+#   key_name = "aws-assignment-key"
 
-  user_data = templatefile("form-setup.tftpl", {
-  mongo_uri_secret = var.mongo_uri
-})
+#   user_data = templatefile("form-setup.tftpl", {
+#   mongo_uri_secret = var.mongo_uri
+# })
 
-  tags = {
-    Name = "App-Server"
-  }
-}
+#   tags = {
+#     Name = "App-Server"
+#   }
+# }
 
 resource "aws_instance" "jenkins_server" {
   ami                    = data.aws_ami.ubuntu.id
@@ -110,12 +119,50 @@ resource "aws_instance" "jenkins_server" {
 }
 
 # 4. Output the IP address to your terminal
-output "public_ip" {
-  description = "The public IP of the EC2 instance"
-  value       = aws_instance.app_server.public_ip
-}
+# output "public_ip" {
+#   description = "The public IP of the EC2 instance"
+#   value       = aws_instance.app_server.public_ip
+# }
 
 output "jenkins_public_ip" {
   description = "The public IP of the Jenkins EC2 instance"
   value       = aws_instance.jenkins_server.public_ip
+}
+
+# Fetch your default AWS network automatically
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# Provision the EKS Cluster
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 21.0"
+
+  name    = "devops-portfolio-cluster"
+  kubernetes_version = "1.36"
+
+  # Allows you to run kubectl from your laptop/Jenkins
+  endpoint_public_access = true
+
+  vpc_id     = data.aws_vpc.default.id
+  subnet_ids = data.aws_subnets.default.ids
+
+  # Create the worker nodes (EC2 instances managed by K8s)
+  eks_managed_node_groups = {
+    app_nodes = {
+      min_size       = 1
+      max_size       = 2
+      desired_size   = 1
+      # t3.medium is the recommended minimum for EKS to handle system pods
+      instance_types = ["t3.medium"] 
+    }
+  }
 }
