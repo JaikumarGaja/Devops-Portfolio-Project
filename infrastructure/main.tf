@@ -149,20 +149,23 @@ module "eks" {
   name    = "devops-portfolio-cluster"
   kubernetes_version = "1.36"
 
-  # Allows you to run kubectl from your laptop/Jenkins
   endpoint_public_access = true
+  
+  # Grants your local AWS CLI and Jenkins permissions to run kubectl commands
+  enable_cluster_creator_admin_permissions = true
 
   vpc_id     = data.aws_vpc.default.id
   subnet_ids = data.aws_subnets.default.ids
 
-  # Create the worker nodes (EC2 instances managed by K8s)
   eks_managed_node_groups = {
     app_nodes = {
       min_size       = 1
       max_size       = 2
       desired_size   = 1
-      # t3.medium is the recommended minimum for EKS to handle system pods
       instance_types = ["t3.medium"] 
+      
+      # THE FIX: Forces nodes to get a public IP so they can use the Internet Gateway
+      associate_public_ip_address = true
     }
   }
 }
