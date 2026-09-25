@@ -18,38 +18,38 @@ provider "aws" {
 }
 
 # 1. Open the necessary ports
-resource "aws_security_group" "main_sg" {
-  name        = "flask_express_sg"
-  description = "Allow SSH, Express (4000), and Flask (5000)"
+# resource "aws_security_group" "main_sg" {
+#   name        = "flask_express_sg"
+#   description = "Allow SSH, Express (4000), and Flask (5000)"
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
   
-  ingress {
-    from_port   = 4000  
-    to_port     = 4000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port   = 4000  
+#     to_port     = 4000
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
   
-  ingress {
-    from_port   = 5000
-    to_port     = 5000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port   = 5000
+#     to_port     = 5000
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
 
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins_sg"
@@ -151,7 +151,7 @@ module "eks" {
   version = "~> 21.0"
 
   name    = "devops-portfolio-cluster"
-  kubernetes_version = "1.36"
+  kubernetes_version = "1.30"
 
   endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
