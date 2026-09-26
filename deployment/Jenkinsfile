@@ -1,39 +1,26 @@
 pipeline {
     agent any
-
+    
     environment {
-        // Your current App Server IP (Note: this will change if the EC2 instance stops/starts)
-        APP_IP = '13.235.49.85'
-        
-        // Securely fetch the MongoDB connection string from Jenkins' credential vault
-        MONGO_URI = credentials('mongo-uri-secret')
+        CLUSTER_NAME = 'devops-portfolio-cluster-v3'
+        AWS_REGION = 'ap-south-1'
     }
 
     stages {
-        stage('Deploy to App Server') {
+        stage('Update KubeConfig') {
             steps {
-                // This block uses the SSH Agent plugin and the credential ID we just created
-                sshagent(['app-server-key']) {
-                    sh '''
-                        # 1. Bypass the interactive prompt for adding the host to known_hosts
-                        # 2. Create the necessary directories on the App Server
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "mkdir -p /home/ubuntu/app/form /home/ubuntu/app/form-api"
-
-                        # 3. Securely inject the .env files directly onto the App Server
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'BACKEND_URL=http://${APP_IP}:5000' > /home/ubuntu/app/form/.env"
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "echo 'MONGO_URI=${MONGO_URI}' > /home/ubuntu/app/form-api/.env"
-
-                        # 1. Delete any old compose files to prevent conflicts
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "rm -f /home/ubuntu/app/docker-compose.yml /home/ubuntu/app/docker-compose.yaml"
-
-                        # 2. Copy the new .yaml file
-                        scp -o StrictHostKeyChecking=no deployment/docker-compose.yaml ubuntu@${APP_IP}:/home/ubuntu/app/docker-compose.yaml
-
-                        # 3. Force Docker to use the specific .yaml file
-
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_IP} "cd /home/ubuntu/app && docker-compose -f docker-compose.yaml pull && docker-compose -f docker-compose.yaml down && docker-compose -f docker-compose.yaml up -d"
-                    '''
-                }
+                // Jenkins automatically uses its EC2 IAM role here to authenticate
+                sh "aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}"
+            }
+        }
+        
+        stage('Deploy to EKS') {
+            steps {
+                // Apply your YAML manifests
+                sh "kubectl apply -f kubernetes/"
+                
+                // Force Kubernetes to pull the brand new Docker images
+                sh "kubectl rollout restart deployment backend-deployment frontend-deployment"
             }
         }
     }
