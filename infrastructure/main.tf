@@ -198,6 +198,14 @@ module "eks" {
       type        = "ingress"
       cidr_blocks = ["0.0.0.0/0"]
     }
+    ingress_backend = {
+      description = "Allow public access to backend"
+      protocol    = "tcp"
+      from_port   = 30001
+      to_port     = 30001
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   access_entries = {
