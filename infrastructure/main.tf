@@ -188,6 +188,18 @@ module "eks" {
   endpoint_public_access                   = true
   enable_cluster_creator_admin_permissions = true
 
+  # THE FIX: Open the NodePort to the public internet
+  node_security_group_additional_rules = {
+    ingress_nodeport = {
+      description = "Allow public access to frontend NodePort"
+      protocol    = "tcp"
+      from_port   = 30000
+      to_port     = 30000
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
   access_entries = {
     jenkins_admin = {
       principal_arn = aws_iam_role.jenkins_role.arn
