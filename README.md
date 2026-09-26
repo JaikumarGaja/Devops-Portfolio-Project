@@ -22,14 +22,24 @@ This repository demonstrates the progressive evolution of a cloud-native, 3-tier
 * **Continuous Deployment:** Self-hosted **Jenkins** on an isolated EC2 instance. The declarative `Jenkinsfile` utilizes SSH Agents to securely authenticate with the Application Server, pull the latest images, and orchestrate deployment via `docker-compose`.
 * **Pipeline Synchronization:** Eliminated CI/CD race conditions by decoupling the Jenkins webhook and utilizing authenticated API remote triggers via GitHub Actions `curl` commands, ensuring Jenkins only deploys after images are fully hosted.
 
-## 🟡 Phase 2: The Kubernetes Upgrade (In Progress)
-**Goal:** Migrate the standalone EC2 application to an Amazon Elastic Kubernetes Service (EKS) cluster to eliminate deployment downtime and introduce container orchestration.
+## Phase 2: Cloud-Native Migration (Kubernetes & EKS)
+**Status:** Completed
 
-* **Planned Architecture:** 
-  * Deprecating `docker-compose` in favor of Kubernetes `Deployments` and `Services`.
-  * Implementing internal DNS routing between frontend and backend Pods.
-  * Enabling Rolling Updates for zero-downtime CI/CD deployments.
-  * Updating Terraform configurations to provision the EKS Control Plane and Worker Nodes.
+In Phase 2, the architecture was upgraded from a standalone EC2 server running Docker Compose to a highly available, self-healing Kubernetes cluster on AWS EKS. This enables zero-downtime rolling updates and enterprise-grade security.
+
+### Architecture Changes
+* **Infrastructure as Code:** Replaced the default AWS network with a Custom VPC module in Terraform, explicitly enabling DNS hostnames and auto-assigning public IPs to resolve EKS worker node registration timeouts.
+* **Zero-Trust Authentication:** Eliminated the use of hardcoded AWS IAM Access Keys and SSH PEM keys. Created an AWS IAM Instance Profile in Terraform and attached it directly to the Jenkins EC2 server, granting it native permissions to authenticate with the EKS Control Plane.
+* **Kubernetes Orchestration:**
+  * Created `Deployment` manifests for the frontend (React) and backend (Flask/Node) microservices.
+  * Configured `NodePort` Services to expose the application through the AWS Security Groups.
+  * Implemented Kubernetes `Secrets` to securely manage the MongoDB connection string.
+* **Pipeline Upgrade:** Updated the Jenkinsfile to execute `kubectl apply` and `kubectl rollout restart`, forcing dynamic image pulls from Docker Hub to ensure zero-downtime updates.
+
+### Challenges Solved (War Stories)
+1. **EKS VPC Routing Limits:** Discovered that EKS worker nodes deployed in a Default VPC fail to communicate with the control plane due to missing NAT Gateways and VPC-CNI plugin failures. Resolved by architecting a dedicated EKS VPC with public subnets.
+2. **Terraform State Immutability:** Encountered state corruption when attempting to move an existing EKS cluster to a new VPC. Bypassed the limitation by renaming the cluster, forcing Terraform to provision a clean environment.
+3. **API Versioning Conflicts:** Troubleshot a Jenkins pipeline `Exit Code 1` error caused by an outdated AWS CLI v1 injecting `v1alpha1` tokens that Kubernetes 1.30 rejected. Manually upgraded the CI server to AWS CLI v2 to generate modern, compatible auth tokens.
 
 ## 🔴 Phase 3: The Observability Layer (Planned)
 **Goal:** Introduce enterprise-grade monitoring and alerting to the Kubernetes cluster.
