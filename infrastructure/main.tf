@@ -155,10 +155,10 @@ resource "aws_instance" "jenkins_server" {
 #   value       = aws_instance.app_server.public_ip
 # }
 
-output "jenkins_public_ip" {
-  description = "The public IP of the Jenkins EC2 instance"
-  value       = aws_instance.jenkins_server.public_ip
-}
+# output "jenkins_public_ip" {
+#   description = "The public IP of the Jenkins EC2 instance"
+#   value       = aws_instance.jenkins_server.public_ip
+# }
 
 # 1. Build a custom, EKS-optimized VPC
 module "vpc" {
@@ -198,6 +198,7 @@ module "eks" {
       type        = "ingress"
       cidr_blocks = ["0.0.0.0/0"]
     }
+    #to check the public access to the backend, we can open the backend port as well
     ingress_backend = {
       description = "Allow public access to backend"
       protocol    = "tcp"
@@ -240,8 +241,6 @@ module "eks" {
 
   eks_managed_node_groups = {
     app_nodes = {
-      # AMI_ID         = data.aws_ami.ubuntu.id
-      # ami_type       = "AL2_x86_64" # Amazon Linux 2
       min_size       = 1
       max_size       = 2
       desired_size   = 1
