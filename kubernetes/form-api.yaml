@@ -10,19 +10,19 @@ spec:
   template:
     metadata:
       labels:
-        app: form-api 
+        app: form-api
     spec:
       containers:
-      - name: form-api
-        image: jaikumargaja/form-api:latest
-        ports:
-        - containerPort: 5000
-        env:
-        - name: MONGO_URI
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: mongo-uri
+        - name: form-api
+          image: jaikumargaja/form-api:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: mongo-uri
 ---
 apiVersion: v1
 kind: Service
@@ -34,6 +34,6 @@ spec:
   selector:
     app: form-api
   ports:
-  - port: 5000
-    targetPort: 5000
-    # nodePort: 30001
+    - port: 5000
+      targetPort: 5000
+      # nodePort: 30001
