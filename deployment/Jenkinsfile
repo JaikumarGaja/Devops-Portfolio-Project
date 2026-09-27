@@ -11,6 +11,7 @@ pipeline {
             steps {
                 // Jenkins automatically uses its EC2 IAM role here to authenticate
                 sh "aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}"
+                // aws eks update-kubeconfig --region ap-south-1 --name devops-portfolio-cluster-v3
             }
         }
         

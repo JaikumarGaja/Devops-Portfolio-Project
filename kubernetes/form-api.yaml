@@ -29,11 +29,11 @@ kind: Service
 metadata:
   name: form-api-service
 spec:
-  # type: ClusterIP
-  type: NodePort
+  type: ClusterIP
+  # type: NodePort
   selector:
     app: form-api
   ports:
   - port: 5000
     targetPort: 5000
-    nodePort: 30001
+    # nodePort: 30001
