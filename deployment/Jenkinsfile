@@ -17,11 +17,17 @@ pipeline {
         
         stage('Deploy to EKS') {
             steps {
-                // Apply your YAML manifests
+                // 1. Pull the secret safely from Jenkins
+                withCredentials([string(credentialsId: 'mongo-db-uri', variable: 'MONGO_URI')]) {
+                    // 2. Safely create or update the secret in Kubernetes
+                    sh "kubectl create secret generic app-secrets --from-literal=mongo-uri='${MONGO_URI}' --dry-run=client -o yaml | kubectl apply -f -"
+                }
+                
+                // 3. Deploy the application
                 sh "kubectl apply -f kubernetes/"
                 
-                // Force Kubernetes to pull the brand new Docker images
-                sh "kubectl rollout restart deployment form-deployment form-api-deployment"
+                // 4. Force restart to pull new images
+                sh "kubectl rollout restart deployment form-api-deployment form-deployment"
             }
         }
     }
