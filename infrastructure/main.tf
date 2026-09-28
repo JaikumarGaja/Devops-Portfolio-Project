@@ -4,7 +4,17 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 6.0.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = ">= 6.0.0"
+    }
   }
+}
+
+variable "github_token" {
+  description = "GitHub Personal Access Token"
+  type        = string
+  sensitive   = true
 }
 
 variable "mongo_uri" {
@@ -15,6 +25,10 @@ variable "mongo_uri" {
 
 provider "aws" {
   region = "ap-south-1"
+}
+
+provider "github" {
+  token = var.github_token
 }
 
 # resource "aws_vpc" "main_vpc" {
@@ -286,4 +300,10 @@ resource "aws_iam_role_policy" "jenkins_eks_policy" {
 resource "aws_iam_instance_profile" "jenkins_profile" {
   name = "jenkins_profile"
   role = aws_iam_role.jenkins_role.name
+}
+
+resource "github_actions_secret" "jenkins_url" {
+  repository       = "Devops-Portfolio-Project"
+  secret_name      = "JENKINS_URL"
+  plaintext_value = "http://${aws_instance.jenkins_server.public_ip}:8080"
 }
