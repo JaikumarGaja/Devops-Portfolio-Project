@@ -221,6 +221,16 @@ module "eks" {
       type        = "ingress"
       cidr_blocks = ["0.0.0.0/0"]
     }
+
+    #Grafana port opened to check the grafana dashboard
+    ingress_grafana = {
+      description = "Allow public access to Grafana"
+      protocol    = "tcp"
+      from_port   = 30002
+      to_port     = 30002
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   access_entries = {
