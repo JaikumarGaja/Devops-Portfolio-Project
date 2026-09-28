@@ -305,5 +305,5 @@ resource "aws_iam_instance_profile" "jenkins_profile" {
 resource "github_actions_secret" "jenkins_url" {
   repository       = "Devops-Portfolio-Project"
   secret_name      = "JENKINS_URL"
-  plaintext_value = "http://${aws_instance.jenkins_server.public_ip}:8080"
+  value = "http://${aws_instance.jenkins_server.public_ip}:8080"
 }
