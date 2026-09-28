@@ -30,5 +30,20 @@ pipeline {
                 sh "kubectl rollout restart deployment form-api-deployment form-deployment"
             }
         }
+
+        stage('Deploy Observability') {
+            steps {
+                sh """
+                helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                helm repo update
+                helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+                  --namespace monitoring \
+                  --create-namespace \
+                  --set grafana.service.type=NodePort \
+                  --set grafana.service.nodePort=30002 \
+                  --set grafana.adminPassword="admin"
+                """
+            }
+        }
     }
 }
