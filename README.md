@@ -55,4 +55,18 @@ This repository demonstrates the progressive evolution of a cloud-native, 3-tier
 * **Data Visualization:** Exposed Grafana via a dynamically provisioned Kubernetes NodePort and updated the AWS Security Group via Terraform to allow secure web access. 
 
 ---
+
+## 📅 Engineering Log
+
+### 07-October-2026 - The GitOps Evolution & Cloud IaC
+**Objective:** Migrate Terraform state to a remote AWS S3 backend to enable cloud-based CI/CD infrastructure deployments, and begin architecting a GitOps workflow.
+* **Progress:** 
+  * Re-architected Terraform to utilize an AWS S3 remote backend, effectively separating the infrastructure code (GitHub) from the state data (S3).
+  * Engineered a GitHub Actions workflow using `workflow_dispatch` to manually trigger `terraform apply` and `terraform destroy` directly from the cloud UI, completely removing the need for local execution.
+  * Injected GitHub Secrets as `TF_VAR_` environment variables to securely pass MongoDB URIs and GitHub tokens into the cloud runner without hardcoding them.
+  * Successfully spun up the AWS EKS cluster entirely through the automated cloud pipeline. 
+  * **Next Step:** Deprecate Jenkins and install Argo CD for pull-based GitOps deployments.
+
+---
+
 *Developed by Jaikumar Gaja.*
