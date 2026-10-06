@@ -1,4 +1,9 @@
 terraform {
+  backend "s3" {
+    bucket = "terraform-files-bucket-798319586089-ap-south-1-an" # Replace with your exact bucket name
+    key    = "infrastructure/terraform.tfstate"
+    region = "ap-south-1"
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
