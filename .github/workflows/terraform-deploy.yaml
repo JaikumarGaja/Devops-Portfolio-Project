@@ -16,6 +16,12 @@ jobs:
   terraform:
     name: 'Terraform Execution'
     runs-on: ubuntu-latest
+    
+    # Tells all run steps to execute inside the infrastructure folder
+    defaults:
+      run:
+        working-directory: ./infrastructure
+        
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
