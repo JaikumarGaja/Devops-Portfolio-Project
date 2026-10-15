@@ -352,5 +352,5 @@ resource "helm_release" "argocd" {
   version          = "5.51.6" # Use a stable chart version
 
   # This ensures Helm waits for EKS to exist before trying to install Argo CD
-  depends_on = [aws_eks_node_group.devops-portfolio-node-group] 
+  depends_on = [module.eks.eks_managed_node_groups] 
 }
