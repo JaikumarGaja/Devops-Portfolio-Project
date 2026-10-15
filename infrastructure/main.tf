@@ -42,17 +42,6 @@ provider "github" {
   token = var.github_token
 }
 
-provider "helm" {
-  kubernetes {
-    host                   = aws_eks_cluster.devops-portfolio-cluster-v3.endpoint
-    cluster_ca_certificate = base64decode(aws_eks_cluster.devops-portfolio-cluster-v3.certificate_authority[0].data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.devops-portfolio-cluster-v3.name]
-      command     = "aws"
-    }
-  }
-}
 
 # resource "aws_vpc" "main_vpc" {
 #   cidr_block           = "10.0.0.0/16"
@@ -340,6 +329,19 @@ resource "github_actions_secret" "jenkins_url" {
   secret_name      = "JENKINS_URL"
   value = "http://${aws_instance.jenkins_server.public_ip}:8080"
 }
+
+provider "helm" {
+  kubernetes {
+    host                   = aws_eks_cluster.devops-portfolio-cluster-v3.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.devops-portfolio-cluster-v3.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.devops-portfolio-cluster-v3.name]
+      command     = "aws"
+    }
+  }
+}
+
 
 resource "helm_release" "argocd" {
   name             = "argocd"
