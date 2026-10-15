@@ -13,6 +13,10 @@ terraform {
       source  = "integrations/github"
       version = ">= 6.0.0"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.0"
+    }
   }
 }
 
@@ -36,6 +40,18 @@ provider "aws" {
 
 provider "github" {
   token = var.github_token
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = aws_eks_cluster.devops-portfolio-cluster-v3.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.devops-portfolio-cluster-v3.certificate_authority[0].data)
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.devops-portfolio-cluster-v3.name]
+      command     = "aws"
+    }
+  }
 }
 
 # resource "aws_vpc" "main_vpc" {
@@ -323,4 +339,16 @@ resource "github_actions_secret" "jenkins_url" {
   repository       = "Devops-Portfolio-Project"
   secret_name      = "JENKINS_URL"
   value = "http://${aws_instance.jenkins_server.public_ip}:8080"
+}
+
+resource "helm_release" "argocd" {
+  name             = "argocd"
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  namespace        = "argocd"
+  create_namespace = true
+  version          = "5.51.6" # Use a stable chart version
+
+  # This ensures Helm waits for EKS to exist before trying to install Argo CD
+  depends_on = [aws_eks_node_group.devops-portfolio-node-group] 
 }
