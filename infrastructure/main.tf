@@ -43,10 +43,10 @@ provider "github" {
 }
 
 provider "helm" {
-  kubernetes = {
+  kubernetes {
     host                   = aws_eks_cluster.devops-portfolio-cluster-v3.endpoint
     cluster_ca_certificate = base64decode(aws_eks_cluster.devops-portfolio-cluster-v3.certificate_authority[0].data)
-    exec = {
+    exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.devops-portfolio-cluster-v3.name]
       command     = "aws"
