@@ -58,7 +58,7 @@ This repository demonstrates the progressive evolution of a cloud-native, 3-tier
 
 ## 📅 Engineering Log
 
-### 07-October-2026 - The GitOps Evolution & Cloud IaC
+### 07-October-2026 - Cloud IaC
 **Objective:** Migrate Terraform state to a remote AWS S3 backend to enable cloud-based CI/CD infrastructure deployments, and begin architecting a GitOps workflow.
 * **Progress:** 
   * Re-architected Terraform to utilize an AWS S3 remote backend, effectively separating the infrastructure code (GitHub) from the state data (S3).
@@ -66,6 +66,15 @@ This repository demonstrates the progressive evolution of a cloud-native, 3-tier
   * Injected GitHub Secrets as `TF_VAR_` environment variables to securely pass MongoDB URIs and GitHub tokens into the cloud runner without hardcoding them.
   * Successfully spun up the AWS EKS cluster entirely through the automated cloud pipeline. 
   * **Next Step:** Deprecate Jenkins and install Argo CD for pull-based GitOps deployments.
+
+### 16-October-2026 - Automating GitOps & Resolving State Conflicts
+**Objective:** Automate the deployment of the Argo CD GitOps controller using Terraform and the Helm provider to achieve a zero-touch, single-click infrastructure pipeline.
+* **Progress:** 
+  * Integrated the Terraform Helm provider, configuring it to dynamically authenticate with the newly built EKS cluster using AWS IAM tokens (`client.authentication.k8s.io/v1beta1`).
+  * Engineered a `helm_release` resource to automatically bootstrap Argo CD into the cluster immediately following the EKS provisioning phase.
+  * Debugged and resolved complex Kubernetes state conflicts, specifically clearing orphaned Cluster-scoped Custom Resource Definitions (CRDs) to ensure true pipeline idempotency.
+  * Successfully achieved a fully automated infrastructure-to-GitOps pipeline via GitHub Actions, eliminating all manual `kubectl` installation steps.
+  * **Next Step:** Architect and write the Kubernetes manifests for the asynchronous 5-pod task queue microservice (React, Node.js, Redis, Python, MongoDB).
 
 ---
 
