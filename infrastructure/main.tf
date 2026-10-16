@@ -54,18 +54,18 @@ provider "helm" {
   }
 }
 
-resource "kubernetes_secret" "mongo_uri" {
-  metadata {
-    name      = "mongo-secret"
-    namespace = "default"
-  }
+# resource "kubernetes_secret" "mongo_uri" {
+#   metadata {
+#     name      = "mongo-secret"
+#     namespace = "default"
+#   }
 
-  data = {
-    MONGO_URI = var.mongo_uri
-  }
+#   data = {
+#     MONGO_URI = var.mongo_uri
+#   }
 
-  depends_on = [module.eks]
-}
+#   depends_on = [module.eks]
+# }
 
 
 # resource "aws_vpc" "main_vpc" {
