@@ -54,6 +54,19 @@ provider "helm" {
   }
 }
 
+resource "kubernetes_secret" "mongo_secret" {
+  metadata {
+    name      = "mongo-secret"
+    namespace = "default"
+  }
+
+  data = {
+    MONGO_URI = var.mongo_uri
+  }
+
+  depends_on = [module.eks]
+}
+
 
 # resource "aws_vpc" "main_vpc" {
 #   cidr_block           = "10.0.0.0/16"
@@ -242,6 +255,16 @@ module "eks" {
       protocol    = "tcp"
       from_port   = 30001
       to_port     = 30001
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    #Argo CD Ingress
+    ingress_argocd = {
+      description = "Allow public access to Argo CD"
+      protocol    = "tcp"
+      from_port   = 443
+      to_port     = 443
       type        = "ingress"
       cidr_blocks = ["0.0.0.0/0"]
     }
