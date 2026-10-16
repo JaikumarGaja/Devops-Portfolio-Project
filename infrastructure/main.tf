@@ -54,7 +54,7 @@ provider "helm" {
   }
 }
 
-resource "kubernetes_secret" "mongo_secret" {
+resource "kubernetes_secret" "mongo_uri" {
   metadata {
     name      = "mongo-secret"
     namespace = "default"
