@@ -54,6 +54,19 @@ provider "helm" {
   }
 }
 
+resource "kubernetes_secret_v1" "mongo_secret" {
+  metadata {
+    name      = "app-secrets"
+    namespace = "default"
+  }
+
+  data = {
+    "mongo-uri" = var.mongo_uri
+  }
+
+  depends_on = [module.eks]
+}
+
 # resource "kubernetes_secret" "mongo_uri" {
 #   metadata {
 #     name      = "mongo-secret"
