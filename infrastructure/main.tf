@@ -119,31 +119,31 @@ provider "helm" {
 #   }
 # }
 
-resource "aws_security_group" "jenkins_sg" {
-  name        = "jenkins_sg"
-  description = "Allow SSH and Jenkins (8080)"
+# resource "aws_security_group" "jenkins_sg" {
+#   name        = "jenkins_sg"
+#   description = "Allow SSH and Jenkins (8080)"
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port   = 8080
+#     to_port     = 8080
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
 
 # 2. Find the latest Ubuntu image
 data "aws_ami" "ubuntu" {
@@ -172,20 +172,20 @@ data "aws_ami" "ubuntu" {
 #   }
 # }
 
-resource "aws_instance" "jenkins_server" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t2.micro"
-  iam_instance_profile   = aws_iam_instance_profile.jenkins_profile.name
-  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
-  key_name               = "aws-assignment-key"
+# resource "aws_instance" "jenkins_server" {
+#   ami                    = data.aws_ami.ubuntu.id
+#   instance_type          = "t2.micro"
+#   iam_instance_profile   = aws_iam_instance_profile.jenkins_profile.name
+#   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+#   key_name               = "aws-assignment-key"
 
-  user_data = templatefile("jenkins-setup.tftpl", {
-  })
+#   user_data = templatefile("jenkins-setup.tftpl", {
+#   })
 
-  tags = {
-    Name = "Jenkins-Server"
-  }
-}
+#   tags = {
+#     Name = "Jenkins-Server"
+#   }
+# }
 
 # 4. Output the IP address to your terminal
 # output "public_ip" {
@@ -316,31 +316,31 @@ resource "aws_iam_role" "jenkins_role" {
 }
 
 # 2. Allow Jenkins to read EKS cluster info
-resource "aws_iam_role_policy" "jenkins_eks_policy" {
-  name = "jenkins_eks_policy"
-  role = aws_iam_role.jenkins_role.id
+# resource "aws_iam_role_policy" "jenkins_eks_policy" {
+#   name = "jenkins_eks_policy"
+#   role = aws_iam_role.jenkins_role.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action   = ["eks:DescribeCluster", "eks:ListClusters"]
-      Effect   = "Allow"
-      Resource = "*"
-    }]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [{
+#       Action   = ["eks:DescribeCluster", "eks:ListClusters"]
+#       Effect   = "Allow"
+#       Resource = "*"
+#     }]
+#   })
+# }
 
 # 3. Create the Instance Profile to attach to the EC2 server
-resource "aws_iam_instance_profile" "jenkins_profile" {
-  name = "jenkins_profile"
-  role = aws_iam_role.jenkins_role.name
-}
+# resource "aws_iam_instance_profile" "jenkins_profile" {
+#   name = "jenkins_profile"
+#   role = aws_iam_role.jenkins_role.name
+# }
 
-resource "github_actions_secret" "jenkins_url" {
-  repository       = "Devops-Portfolio-Project"
-  secret_name      = "JENKINS_URL"
-  value = "http://${aws_instance.jenkins_server.public_ip}:8080"
-}
+# resource "github_actions_secret" "jenkins_url" {
+#   repository       = "Devops-Portfolio-Project"
+#   secret_name      = "JENKINS_URL"
+#   value = "http://${aws_instance.jenkins_server.public_ip}:8080"
+# }
 
 
 resource "helm_release" "argocd" {

@@ -1,7 +1,7 @@
-output "jenkins_public_ip_output_file" {
-  description = "The public IP of the Jenkins EC2 instance"
-  value       = aws_instance.jenkins_server.public_ip
-}
+# output "jenkins_public_ip_output_file" {
+#   description = "The public IP of the Jenkins EC2 instance"
+#   value       = aws_instance.jenkins_server.public_ip
+# }
 
 # 1. Look up the EC2 instances attached to your EKS cluster
 data "aws_instances" "eks_nodes" {
