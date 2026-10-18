@@ -46,16 +46,16 @@ provider "github" {
   token = var.github_token
 }
 
-data "aws_eks_cluster" "live_cluster" {
-  name = module.eks.cluster_name
-}
+# data "aws_eks_cluster" "live_cluster" {
+#   name = module.eks.cluster_name
+# }
 
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.live_cluster.endpoint
+  host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.live_cluster.certificate_authority[0].data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.live_cluster.name]
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
     command     = "aws"
   }
 }
