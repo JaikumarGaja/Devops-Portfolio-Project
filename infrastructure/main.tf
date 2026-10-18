@@ -290,15 +290,15 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
 
-    #Argo CD Ingress
-    ingress_argocd = {
-      description = "Allow public access to Argo CD"
-      protocol    = "tcp"
-      from_port   = 443
-      to_port     = 443
-      type        = "ingress"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
+    # #Argo CD Ingress
+    # ingress_argocd = {
+    #   description = "Allow public access to Argo CD"
+    #   protocol    = "tcp"
+    #   from_port   = 443
+    #   to_port     = 443
+    #   type        = "ingress"
+    #   cidr_blocks = ["0.0.0.0/0"]
+    # }
 
     #Grafana port opened to check the grafana dashboard
     ingress_grafana = {
@@ -311,19 +311,19 @@ module "eks" {
     }
   }
 
-  access_entries = {
-    jenkins_admin = {
-      principal_arn = aws_iam_role.jenkins_role.arn
-      policy_associations = {
-        cluster_admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
+  # access_entries = {
+  #   jenkins_admin = {
+  #     principal_arn = aws_iam_role.jenkins_role.arn
+  #     policy_associations = {
+  #       cluster_admin = {
+  #         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  #         access_scope = {
+  #           type = "cluster"
+  #         }
+  #       }
+  #     }
+  #   }
+  # }
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.public_subnets
@@ -353,21 +353,21 @@ module "eks" {
   }
 }
 
-# 1. Create the IAM Role for Jenkins
-resource "aws_iam_role" "jenkins_role" {
-  name = "jenkins_eks_role"
+# # 1. Create the IAM Role for Jenkins
+# resource "aws_iam_role" "jenkins_role" {
+#   name = "jenkins_eks_role"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
-  })
-}
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [{
+#       Action = "sts:AssumeRole"
+#       Effect = "Allow"
+#       Principal = {
+#         Service = "ec2.amazonaws.com"
+#       }
+#     }]
+#   })
+# }
 
 # 2. Allow Jenkins to read EKS cluster info
 # resource "aws_iam_role_policy" "jenkins_eks_policy" {
