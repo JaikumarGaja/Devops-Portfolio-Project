@@ -408,3 +408,36 @@ resource "helm_release" "argocd" {
   # This ensures Helm waits for EKS to exist before trying to install Argo CD
   depends_on = [module.eks.eks_managed_node_groups] 
 }
+
+# This hands the application instructions to Argo CD automatically
+resource "helm_release" "argocd_application" {
+  name       = "argocd-apps"
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argocd-apps"
+  namespace  = "argocd"
+  version    = "1.6.2"
+
+  # We pass the exact YAML we wrote earlier directly into Helm
+  values = [
+    <<-EOT
+    applications:
+      - name: form-app
+        namespace: argocd
+        project: default
+        source:
+          repoURL: 'https://github.com/JaikumarGaja/devops-portfolio-project.git'
+          targetRevision: HEAD
+          path: kubernetes
+        destination:
+          server: 'https://kubernetes.default.svc'
+          namespace: default
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+    EOT
+  ]
+
+  # CRITICAL: Terraform must wait for Argo CD to be fully installed first!
+  depends_on = [helm_release.argocd]
+}
