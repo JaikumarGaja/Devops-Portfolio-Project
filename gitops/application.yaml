@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: form-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # 1. Replace with your actual GitHub repository URL
+    repoURL: 'https://github.com/JaikumarGaja/devops-portfolio-project.git'
+    # 2. Track the main branch (or switch to HEAD)
+    targetRevision: HEAD
+    # 3. Replace with the exact folder where your form-app YAMLs live
+    path: kubernetes
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
