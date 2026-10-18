@@ -67,14 +67,25 @@ This repository demonstrates the progressive evolution of a cloud-native, 3-tier
   * Successfully spun up the AWS EKS cluster entirely through the automated cloud pipeline. 
   * **Next Step:** Deprecate Jenkins and install Argo CD for pull-based GitOps deployments.
 
-### 16-October-2026 - Automating GitOps & Resolving State Conflicts
-**Objective:** Automate the deployment of the Argo CD GitOps controller using Terraform and the Helm provider to achieve a zero-touch, single-click infrastructure pipeline.
+### 16-October-2026 - Cluster Access & Manual Argo CD Exploration
+**Objective:** Establish local administrative access to the EKS cluster, manually deploy Argo CD to understand its architecture, and prepare the environment for full GitOps automation.
 * **Progress:** 
-  * Integrated the Terraform Helm provider, configuring it to dynamically authenticate with the newly built EKS cluster using AWS IAM tokens (`client.authentication.k8s.io/v1beta1`).
-  * Engineered a `helm_release` resource to automatically bootstrap Argo CD into the cluster immediately following the EKS provisioning phase.
-  * Debugged and resolved complex Kubernetes state conflicts, specifically clearing orphaned Cluster-scoped Custom Resource Definitions (CRDs) to ensure true pipeline idempotency.
-  * Successfully achieved a fully automated infrastructure-to-GitOps pipeline via GitHub Actions, eliminating all manual `kubectl` installation steps.
-  * **Next Step:** Architect and write the Kubernetes manifests for the asynchronous 5-pod task queue microservice (React, Node.js, Redis, Python, MongoDB).
+  * Configured local machine access to the newly built EKS cluster using `aws eks update-kubeconfig`.
+  * Manually installed Argo CD via `kubectl` to study its underlying Custom Resource Definitions (CRDs) and component architecture.
+  * Extracted and base64-decoded the `argocd-initial-admin-secret` to access the Argo CD GUI locally via port-forwarding.
+  * Navigated the Argo CD UI to manually connect the GitHub repository and validate the pull-based GitOps deployment model.
+  * Identified state conflicts and orphaned CRDs during manual teardowns, mapping out the requirements for a fully idempotent automated pipeline.
+* **Next Step:** Translate these manual steps into pure Infrastructure-as-Code using Terraform's Helm provider to achieve a zero-touch, fully automated GitOps pipeline.
+
+### 19-October-2026 - Pure GitOps Migration & Automated App Bootstrapping
+**Objective:** Transition the legacy application deployment from Jenkins to Argo CD, automate database secret injection, and codify the application sync process using Terraform.
+* **Progress:** 
+  * Formally deprecated Jenkins in favor of a declarative, pull-based GitOps architecture.
+  * Engineered `kubernetes_secret_v1` in Terraform to dynamically inject the MongoDB URI into EKS, eliminating manual credential management.
+  * Debugged and resolved a critical Terraform provider race condition between the EKS module output and the Kubernetes provider initialization.
+  * Implemented a secondary `helm_release` (`argocd-apps`) to inject the declarative application manifest directly into Argo CD upon boot, achieving a true zero-touch deployment.
+  * Adopted GitFlow best practices by isolating infrastructure changes in a `feature/argocd` branch before cleanly merging into `main`.
+  * **Next Step:** Create the `feature/5-pod-queue` branch to architect and deploy the asynchronous 5-pod task queue microservice (React, Node.js, Redis, Python, MongoDB).
 
 ---
 
